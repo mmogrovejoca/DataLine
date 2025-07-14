@@ -1,0 +1,383 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+
+
+
+
+
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+
+
+
+    <div class="flex-container">
+        <div>
+            <h2>Buscar Tabla</h2>
+            <input type="text" id="searchInput" placeholder="Buscar por nombre de tabla...">
+            <button id="searchButton" onclick="searchTable()">Buscar</button>
+            <button id="resetButton" onclick="resetGraph()">Restaurar Vista</button>
+        </div>
+    </div>
+    <div id="consumptionTables"></div>
+    <div id="mynetwork" class="card-body"></div>
+        </div>
+
+
+
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+
+
+
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#ff8400", "fixed": {"x": false, "y": false}, "id": "A", "label": "A", "level": 0, "physics": false, "shape": "dot", "size": 10}, {"color": "#bdc3c7", "fixed": {"x": false, "y": false}, "id": "B", "label": "B", "level": 1, "physics": false, "shape": "dot", "size": 10}, {"color": "#bdc3c7", "fixed": {"x": false, "y": false}, "id": "C", "label": "C", "level": 2, "physics": false, "shape": "dot", "size": 10}, {"color": "#bdc3c7", "fixed": {"x": false, "y": false}, "id": "D", "label": "D", "level": 3, "physics": false, "shape": "dot", "size": 10}, {"color": "#bdc3c7", "fixed": {"x": false, "y": false}, "id": "E", "label": "E", "level": 4, "physics": false, "shape": "dot", "size": 10}, {"color": "#bdc3c7", "fixed": {"x": false, "y": false}, "id": "F", "label": "F", "level": 5, "physics": false, "shape": "dot", "size": 10}, {"color": "#bdc3c7", "fixed": {"x": false, "y": false}, "id": "G", "label": "G", "level": 6, "physics": false, "shape": "dot", "size": 10}, {"color": "#bdc3c7", "fixed": {"x": false, "y": false}, "id": "H", "label": "H", "level": 7, "physics": false, "shape": "dot", "size": 10}, {"color": "#bdc3c7", "fixed": {"x": false, "y": false}, "id": "I", "label": "I", "level": 8, "physics": false, "shape": "dot", "size": 10}, {"color": "#bdc3c7", "fixed": {"x": false, "y": false}, "id": "J", "label": "J", "level": 9, "physics": false, "shape": "dot", "size": 10}, {"color": "#2ecc71", "fixed": {"x": false, "y": false}, "id": "K", "label": "K", "level": 10, "physics": false, "shape": "dot", "size": 10}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "A", "to": "B", "width": 1}, {"arrows": "to", "from": "B", "to": "C", "width": 1}, {"arrows": "to", "from": "C", "to": "D", "width": 1}, {"arrows": "to", "from": "D", "to": "E", "width": 1}, {"arrows": "to", "from": "E", "to": "F", "width": 1}, {"arrows": "to", "from": "F", "to": "G", "width": 1}, {"arrows": "to", "from": "G", "to": "H", "width": 1}, {"arrows": "to", "from": "H", "to": "I", "width": 1}, {"arrows": "to", "from": "I", "to": "J", "width": 1}, {"arrows": "to", "from": "J", "to": "K", "width": 1}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {"layout": {"hierarchical": {"enabled": true, "direction": "LR", "sortMethod": "directed", "nodeSpacing": 200, "levelSeparation": 200}}, "physics": {"hierarchicalRepulsion": {"nodeDistance": 200, "centralGravity": 0.0, "springLength": 200, "springConstant": 0.01, "damping": 0.09}, "solver": "hierarchicalRepulsion"}};
+
+
+
+
+
+
+                  network = new vis.Network(container, data, options);
+
+
+
+
+
+
+
+
+
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
+        <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 40px;
+            background-color: #f9fafc;
+            color: #2c3e50;
+        }
+        h2, h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        input[type="text"] {
+            width: 60%;
+            padding: 12px;
+            margin: 10px 10px 20px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+        button {
+            padding: 12px 20px;
+            margin: 10px 5px 20px 0;
+            border: none;
+            background-color: #3498db;
+            color: white;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            background-color: white;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: 600;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #eaf6ff;
+        }
+        .flex-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .flex-container > div {
+            flex: 1;
+        }
+        </style>
+        <hr>
+        <h2>Tablas por Tipo</h2>
+        <div class="flex-container">
+            <div>
+                <h3>INPUT</h3>
+                <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>OrigenDeImpactoTabla</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>A</td>
+    </tr>
+  </tbody>
+</table>
+            </div>
+            <div>
+                <h3>OUTPUT</h3>
+                <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>DestinoDeImpactoTabla</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>K</td>
+    </tr>
+  </tbody>
+</table>
+            </div>
+            <div>
+                <h3>INTERMEDIAS</h3>
+                <table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>OrigenDeImpactoTabla</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>B</td>
+    </tr>
+    <tr>
+      <td>C</td>
+    </tr>
+    <tr>
+      <td>D</td>
+    </tr>
+    <tr>
+      <td>E</td>
+    </tr>
+    <tr>
+      <td>F</td>
+    </tr>
+    <tr>
+      <td>G</td>
+    </tr>
+    <tr>
+      <td>H</td>
+    </tr>
+    <tr>
+      <td>I</td>
+    </tr>
+    <tr>
+      <td>J</td>
+    </tr>
+  </tbody>
+</table>
+            </div>
+        </div>
+        <hr>
+        <script type="text/javascript">
+        function searchTable() {
+            var input = document.getElementById("searchInput").value.toUpperCase();
+            var tables = document.querySelectorAll("table");
+            for (let table of tables) {
+                let rows = table.getElementsByTagName("tr");
+                for (let row of rows) {
+                    let cell = row.getElementsByTagName("td")[0];
+                    if (cell) {
+                        let txtValue = cell.textContent || cell.innerText;
+                        row.style.display = txtValue.toUpperCase().indexOf(input) > -1 ? "" : "none";
+                    }
+                }
+            }
+            highlightNode(input);
+        }
+        function highlightNode(nodeId) {
+            if (typeof network !== 'undefined') {
+                let found = false;
+                for (let node in network.body.nodes) {
+                    let nodeObj = network.body.nodes[node];
+                    let label = nodeObj.options.label;
+                    if (label && label.toUpperCase() === nodeId) {
+                        found = true;
+                        const originalColor = nodeObj.options.color;
+                        const originalSize = nodeObj.options.size || 10;
+                        // Asegúrate de que el nodo no esté oculto
+                        nodeObj.hidden = false;
+                        // Centra la vista en el nodo
+                        network.focus(node, {
+                            scale: 1.5,
+                            animation: { duration: 1000, easingFunction: "easeInOutQuad" }
+                        });
+                        // Resalta el nodo
+                        nodeObj.setOptions({
+                            color: { background: '#ff0000', border: '#ff0000' },
+                            size: 20
+                        });
+                        setTimeout(() => {
+                            nodeObj.setOptions({
+                                color: originalColor,
+                                size: originalSize
+                            });
+                        }, 3000);
+                        var visibleNodes = new Set([node]);
+                        // Función para realizar DFS y encontrar nodos de tipo INPUT
+                        function dfs(node, visited, level, levels) {
+                            visited.add(node);
+                            if (!levels[level]) {
+                                levels[level] = new Set();
+                            }
+                            levels[level].add(node);
+                            var connectedFrom = network.getConnectedNodes(node, 'from');
+                            for (let connectedNode of connectedFrom) {
+                                if (!visited.has(connectedNode)) {
+                                    dfs(connectedNode, visited, level + 1, levels);
+                                }
+                            }
+                        }
+                        // Realizar DFS desde el nodo inicial
+                        var levels = {};
+                        dfs(node, visibleNodes, 0, levels);
+                        var allNodes = network.body.data.nodes.get();
+                        var updateArray = [];
+                        for (let n of allNodes) {
+                            updateArray.push({
+                                id: n.id,
+                                hidden: !visibleNodes.has(n.id)
+                            });
+                        }
+                        network.body.data.nodes.update(updateArray);
+                        // Mostrar tablas de consumo por nivel
+                        var consumptionTablesHTML = "<h3>Tablas de Consumo por Nivel:</h3>";
+                        for (let level in levels) {
+                            consumptionTablesHTML += `<h4>Nivel ${level}:</h4><ul>`;
+                            levels[level].forEach(node => {
+                                consumptionTablesHTML += `<li>${network.body.nodes[node].options.label}</li>`;
+                            });
+                            consumptionTablesHTML += "</ul>";
+                        }
+                        document.getElementById("consumptionTables").innerHTML = consumptionTablesHTML;
+                        break;
+                    }
+                }
+                if (!found) {
+                    alert("Tabla no encontrada en el grafo.");
+                }
+            }
+        }
+        function resetGraph() {
+            if (typeof network !== 'undefined') {
+                var allNodes = network.body.data.nodes.get();
+                var updateArray = [];
+                for (let n of allNodes) {
+                    updateArray.push({
+                        id: n.id,
+                        hidden: false
+                    });
+                }
+                network.body.data.nodes.update(updateArray);
+                document.getElementById("consumptionTables").innerHTML = "";
+            }
+        }
+        </script>
