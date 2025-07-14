@@ -71,6 +71,13 @@ def customize_network(net, df_filtered):
           "damping": 0.09
         },
         "solver": "hierarchicalRepulsion"
+      },
+      "edges": {
+        "smooth": {
+          "type": "cubicBezier",
+          "forceDirection": "horizontal",
+          "roundness": 0.8
+        }
       }
     }
     ''')
